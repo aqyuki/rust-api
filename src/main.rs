@@ -18,7 +18,15 @@ fn handle_connection(mut stream: TcpStream) {
     stream.read(&mut buffer).unwrap();
     println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
 
-    let response = "HTTP/1.1 200 OK\r\n\r\n";
+    let hello_api = b"GET /hello HTTP/1.1\r\n";
+
+    let (status,content) = if buffer.starts_with(hello_api){
+        ("HTTP/1.1 200 OK\r\n\r\n","Hello")
+    }else{
+        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "Not found")
+    };
+
+    let response = format!("{}{}",status, content);
     stream.write(response.as_bytes()).unwrap();
     stream.flush().unwrap();
 }
